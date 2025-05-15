@@ -23,11 +23,11 @@ class PositionEncoding(nn.Module):
         pe = torch.zeros(max_seq_len, d_model, dtype=torch.float)
         pe[:, 0::2] = torch.sin(position * div_term)
         pe[:, 1::2] = torch.cos(position * div_term) # (S, D)
-        pe = pe.unsqueeze(0) # adding batch dimension
-        self.register_buffer("positional_encoding", pe)
+        self.register_buffer("positional_embeddings", pe)
 
     def forward(self, embeddings: torch.Tensor) -> torch.Tensor:
-        output = embeddings + self.positional_encoding
+        slide_pos_emb = self.positional_embeddings[:embeddings.size(1), :]
+        output = embeddings + slide_pos_emb.unsqueeze(0) # adding batch dimension
         if self.dropout_p > 0.0:
             output = F.dropout(output, p=self.dropout_p, training=self.training)
         return output
