@@ -1,4 +1,7 @@
+import os
+
 from tqdm import tqdm
+from pathlib import Path
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
@@ -60,6 +63,13 @@ def main():
     max_seq_len     = 128
     warmup_steps    = 500
 
+    model_name = "tiny_transformer_250528"
+    saving_model_dir = os.getenv("MODEL_CHECKPOINT_DIR")
+    if not saving_model_dir:
+        raise RuntimeError(
+            "Please specify where to save model by export environmental variable `MODEL_CHECKPOINT_DIR`"
+        )
+
     device = torch.device("cuda:3" if torch.cuda.is_available() else "cpu")
 
     # ——— Data ———
@@ -97,6 +107,9 @@ def main():
 
     for e in range(epochs):
         train(e, de_transformer, train_loader, optimizer, device, criterion, lr_scheduler)
+        # saving the model after every epoch
+        saving_model_path = Path(saving_model_dir) / (model_name + ".pt")
+        torch.save(de_transformer.state_dict(), saving_model_path)
 
 
 if __name__ == "__main__":
