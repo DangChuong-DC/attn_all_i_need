@@ -9,6 +9,7 @@ from torch.optim.lr_scheduler import CosineAnnealingLR
 
 from dataset import CustomizedEnViIWSLT, collate_fn
 from model.transformer import Transformer
+from eval import evaluate
 
 
 def train(epoch, model, dataloader, optimizer, device, criterion, lr_scheduler):
@@ -52,7 +53,7 @@ def train(epoch, model, dataloader, optimizer, device, criterion, lr_scheduler):
         #     print(f"Iter {i} --- train loss: {loss.item()}")
     
     avg_train_loss = train_loss / len(dataloader)
-    print(f">>> [Epoch {epoch}] train loss: {avg_train_loss:.3f} <<<")
+    print(f"📝 > [Epoch {epoch}] train loss: {avg_train_loss:.3f}")
 
 
 def main():
@@ -61,7 +62,7 @@ def main():
     epochs          = 13
     learning_rate   = 1e-3
     max_seq_len     = 128
-    warmup_steps    = 500
+    # warmup_steps    = 500
 
     model_name = "tiny_transformer_250528"
     saving_model_dir = os.getenv("MODEL_CHECKPOINT_DIR")
@@ -71,6 +72,13 @@ def main():
         )
 
     device = torch.device("cuda:3" if torch.cuda.is_available() else "cpu")
+
+    # ——— Model Config ———
+    num_layer = 3
+    num_attn_head = 8
+    model_dim = 128
+    feedforward_dim = 128*4
+    dropout_rate = 0.1
 
     # ——— Data ———
     train_ds = CustomizedEnViIWSLT(split="train", max_seq_len=max_seq_len)
@@ -90,11 +98,11 @@ def main():
     de_transformer = Transformer(
         train_ds.get_vocab_size(),
         max_seq_len,
-        n_layer=3,
-        n_head=8,
-        d_model=128,
-        d_ff=128*4,
-        dropout_p=0.1,
+        n_layer=num_layer,
+        n_head=num_attn_head,
+        d_model=model_dim,
+        d_ff=feedforward_dim,
+        dropout_p=dropout_rate,
     )
 
     # ——— Optimizer & Scheduler & Criterion ———
@@ -110,6 +118,8 @@ def main():
         # saving the model after every epoch
         saving_model_path = Path(saving_model_dir) / (model_name + ".pt")
         torch.save(de_transformer.state_dict(), saving_model_path)
+        
+        evaluate(e, de_transformer, val_loader, device, criterion)
 
 
 if __name__ == "__main__":
