@@ -19,7 +19,7 @@ class EncoderBlock(nn.Module):
     ) -> None:
         super(EncoderBlock, self).__init__()
         self.mha = MHASubLayer(
-            n_head=n_head, d_model=d_model, attn_dropout_p=0.0, out_dropout_p=dropout_p
+            n_head=n_head, d_model=d_model, attn_dropout_p=dropout_p, out_dropout_p=dropout_p
         )
 
         self.ffn = FFNSubLayer(
@@ -44,11 +44,11 @@ class DecoderBlock(nn.Module):
     ) -> None:
         super(DecoderBlock, self).__init__()
         self.mmha = MHASubLayer(
-            n_head=n_head, d_model=d_model, attn_dropout_p=0.0, out_dropout_p=dropout_p
+            n_head=n_head, d_model=d_model, attn_dropout_p=dropout_p, out_dropout_p=dropout_p
         )
 
         self.mha = MHASubLayer(
-            n_head=n_head, d_model=d_model, attn_dropout_p=0.0, out_dropout_p=dropout_p
+            n_head=n_head, d_model=d_model, attn_dropout_p=dropout_p, out_dropout_p=dropout_p
         )
 
         self.ffn = FFNSubLayer(
