@@ -5,14 +5,22 @@ from pathlib import Path
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
-from torch.optim.lr_scheduler import CosineAnnealingLR
+from torch.optim.lr_scheduler import CosineAnnealingLR, LRScheduler
 
 from dataset import CustomizedEnViIWSLT, collate_fn
 from model.transformer import Transformer
 from eval import evaluate
 
 
-def train(epoch, model, dataloader, optimizer, device, criterion, lr_scheduler):
+def train(
+    epoch: int, 
+    model: nn.Module, 
+    dataloader: DataLoader, 
+    optimizer: torch.optim.Optimizer, 
+    device: str, 
+    criterion: nn.Module, 
+    lr_scheduler: LRScheduler
+) -> None:
     model = model.to(device=device)
     model.train()
     train_loss = 0.0
@@ -56,7 +64,7 @@ def train(epoch, model, dataloader, optimizer, device, criterion, lr_scheduler):
     print(f"📝 > [Epoch {epoch}] train loss: {avg_train_loss:.3f}")
 
 
-def main():
+def main() -> None:
     # ——— Hyperparameters ———
     batch_size      = 128
     epochs          = 13

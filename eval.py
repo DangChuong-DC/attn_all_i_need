@@ -2,7 +2,13 @@ import torch
 from tqdm import tqdm
 
 
-def evaluate(epoch, model, dataloader, device, criterion) -> None:
+def evaluate(
+    epoch: int, 
+    model: torch.nn.Module, 
+    dataloader: torch.utils.data.DataLoader, 
+    device: str, 
+    criterion: torch.nn.Module,
+) -> None:
     model = model.to(device=device)
     model.eval()
     eval_loss = 0.0
