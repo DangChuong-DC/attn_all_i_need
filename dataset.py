@@ -10,14 +10,17 @@ DATA_PATH = "/DATA01/dc/datasets/iwslt2015_en_vi"
 
 class CustomizedEnViIWSLT(Dataset):
     def __init__(
-        self, split: str = "train", max_seq_len: int = 128,
+        self, 
+        tokenizer: AutoTokenizer,
+        vocab_size: int,
+        split: str = "train", 
+        max_seq_len: int = 128,
     ) -> None:
         super(CustomizedEnViIWSLT, self).__init__()
         self.df_data = pd.read_parquet(Path(DATA_PATH) / f"{split}" / f"{split}0000.parquet")
 
-        self.tokenizer = AutoTokenizer.from_pretrained("Helsinki-NLP/opus-mt-en-vi")
-        no_token_added = self.tokenizer.add_special_tokens({"bos_token": "<s>"})
-        self.new_vocab_size = self.tokenizer.vocab_size + no_token_added
+        self.tokenizer = tokenizer
+        self.new_vocab_size = vocab_size
 
         self.max_seq_len = max_seq_len
         self.bos_token_id = self.new_vocab_size - 1

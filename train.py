@@ -6,6 +6,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from torch.optim.lr_scheduler import CosineAnnealingLR, LRScheduler
+from transformers import AutoTokenizer
 
 from dataset import CustomizedEnViIWSLT, collate_fn
 from model.transformer import Transformer
@@ -25,7 +26,7 @@ def train(
     model.train()
     train_loss = 0.0
 
-    for i, batch in enumerate(tqdm(dataloader)):
+    for batch in tqdm(dataloader):
         optimizer.zero_grad()
 
         # move data to device
@@ -56,9 +57,6 @@ def train(
         lr_scheduler.step()
 
         train_loss += loss.item()
-
-        # if (i + 1) % 100 == 0:
-        #     print(f"Iter {i} --- train loss: {loss.item()}")
     
     avg_train_loss = train_loss / len(dataloader)
     print(f"📝 > [Epoch {epoch}] train loss: {avg_train_loss:.3f}")
@@ -72,7 +70,7 @@ def main() -> None:
     max_seq_len     = 128
     # warmup_steps    = 500
 
-    model_name = "tiny_transformer_250528"
+    model_name = "tiny_transformer_250606"
     saving_model_dir = os.getenv("MODEL_CHECKPOINT_DIR")
     if not saving_model_dir:
         raise RuntimeError(
@@ -89,9 +87,12 @@ def main() -> None:
     dropout_rate = 0.1
 
     # ——— Data ———
-    train_ds = CustomizedEnViIWSLT(split="train", max_seq_len=max_seq_len)
-    val_ds   = CustomizedEnViIWSLT(split="val", max_seq_len=max_seq_len)
+    tokenizer = AutoTokenizer.from_pretrained("Helsinki-NLP/opus-mt-en-vi")
+    no_token_added = tokenizer.add_special_tokens({"bos_token": "<s>"})
+    vocab_size = tokenizer.vocab_size + no_token_added
 
+    train_ds = CustomizedEnViIWSLT(tokenizer, vocab_size, split="train", max_seq_len=max_seq_len)
+    val_ds   = CustomizedEnViIWSLT(tokenizer, vocab_size, split="val", max_seq_len=max_seq_len)
 
     train_loader = DataLoader(
         train_ds, batch_size=batch_size, shuffle=True,
@@ -127,7 +128,7 @@ def main() -> None:
         saving_model_path = Path(saving_model_dir) / (model_name + ".pt")
         torch.save(de_transformer.state_dict(), saving_model_path)
         
-        evaluate(e, de_transformer, val_loader, device, criterion)
+        evaluate(e, de_transformer, val_loader, device, criterion, tokenizer)
 
 
 if __name__ == "__main__":

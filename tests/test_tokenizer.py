@@ -9,6 +9,9 @@ tokenizer = AutoTokenizer.from_pretrained("Helsinki-NLP/opus-mt-en-vi")
 tokenizer.add_special_tokens({"bos_token": "<s>"})
 # print(len(tokenizer))
 
+eos_token = tokenizer.eos_token
+print(f"End of Sequence token: {eos_token}")
+
 # Get the vocabulary pool
 # vocab = tokenizer.get_vocab()
 # print(vocab)
@@ -21,9 +24,9 @@ tokenizer.add_special_tokens({"bos_token": "<s>"})
 # is_separate_vocab = tokenizer.separate_vocabs
 # print(f"If separating source & target vocab: {is_separate_vocab}")
 
-DATA_PATH = "/DATA01/dc/datasets/iwslt2015_en_vi/train/train0000.parquet"
+# DATA_PATH = "/DATA01/dc/datasets/iwslt2015_en_vi/train/train0000.parquet"
 
-df_data = pd.read_parquet(DATA_PATH)
+# df_data = pd.read_parquet(DATA_PATH)
 
 # longest_len = 0
 
@@ -57,16 +60,16 @@ df_data = pd.read_parquet(DATA_PATH)
 
 # print(model_input)
 
-test_key_pad_mask = torch.ones((1, 9))
-for i in range(6, 9):
-    test_key_pad_mask[:, i] = 0
+# test_key_pad_mask = torch.ones((1, 9))
+# for i in range(6, 9):
+#     test_key_pad_mask[:, i] = 0
 
-print(test_key_pad_mask)
+# print(test_key_pad_mask)
 
-test_key_pad_mask0 = test_key_pad_mask.unsqueeze(1).to(dtype=torch.bool)
-test_attn_bias = torch.zeros((1, 9, 9), dtype=torch.float)
-test_attn_bias = test_attn_bias.masked_fill_(test_key_pad_mask0.logical_not(), -math.inf)
-print(test_attn_bias)
+# test_key_pad_mask0 = test_key_pad_mask.unsqueeze(1).to(dtype=torch.bool)
+# test_attn_bias = torch.zeros((1, 9, 9), dtype=torch.float)
+# test_attn_bias = test_attn_bias.masked_fill_(test_key_pad_mask0.logical_not(), -math.inf)
+# print(test_attn_bias)
 
 
 # test_pad_mask = torch.matmul(test_pad_mask.transpose(-2, -1), test_pad_mask)
