@@ -66,11 +66,11 @@ def main() -> None:
     # ——— Hyperparameters ———
     batch_size      = 128
     epochs          = 13
-    learning_rate   = 1e-3
+    learning_rate   = 5e-5
     max_seq_len     = 128
     # warmup_steps    = 500
 
-    model_name = "tiny_transformer_250606"
+    model_name = "tiny_transformer_250617"
     saving_model_dir = os.getenv("MODEL_CHECKPOINT_DIR")
     if not saving_model_dir:
         raise RuntimeError(
@@ -80,10 +80,10 @@ def main() -> None:
     device = torch.device("cuda:3" if torch.cuda.is_available() else "cpu")
 
     # ——— Model Config ———
-    num_layer = 3
+    num_layer = 6
     num_attn_head = 8
-    model_dim = 128
-    feedforward_dim = 128*4
+    model_dim = 512
+    feedforward_dim = 2048
     dropout_rate = 0.1
 
     # ——— Data ———
